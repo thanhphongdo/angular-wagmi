@@ -8,7 +8,9 @@ import {
   fetchEnsName,
   ConnectResult,
   PublicClient,
-  getContract
+  getContract,
+  readContract,
+  writeContract
 } from '@wagmi/core';
 import { InjectedConnector } from '@wagmi/core/connectors/injected';
 import { publicProvider } from '@wagmi/core/providers/public';
@@ -34,19 +36,60 @@ export class WagmiService {
 
   constructor() { }
 
-  async connect() {
-    this.wagmiProvider = await connect({
-      connector: new InjectedConnector(),
-    });
-  }
-  async disconnect() {
-    await disconnect();
+  currentNetwork() {
+    return polygonMumbai;
   }
 
-  async getContract() {
-    const contract = getContract({
-      address: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
-      abi: [],
+  async connect() {
+    try {
+      this.wagmiProvider = await connect({
+        connector: new InjectedConnector({
+          chains: [this.currentNetwork()]
+        }),
+      });
+      localStorage.setItem('CONNECTED_ACCOUNT', this.wagmiProvider.account);
+    }
+    catch (err: any) {
+      console.log(err);
+      if (err.message !== 'Connector already connected') {
+        alert('Error!!!');
+      }
+    }
+  }
+
+  async disconnect() {
+    await disconnect();
+    localStorage.removeItem('CONNECTED_ACCOUNT');
+  }
+
+  getConnectedAccount() {
+    return localStorage.getItem('CONNECTED_ACCOUNT');
+  }
+
+  async getContract(address: string, abi: Array<any>) {
+    return getContract({
+      address: address as any,
+      abi: abi,
+    })
+  }
+  async readContract(address: string, abi: Array<any>, functionName: string, args: Array<any>) {
+    await this.connect();
+    return readContract({
+      address: address as any,
+      chainId: this.currentNetwork().id,
+      abi: abi,
+      args,
+      functionName
+    })
+  }
+  async writeContract(address: string, abi: Array<any>, functionName: string, args: Array<any>) {
+    await this.connect();
+    return writeContract({
+      address: address as any,
+      chainId: this.currentNetwork().id,
+      abi: abi,
+      args,
+      functionName
     })
   }
 }

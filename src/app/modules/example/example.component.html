@@ -1,4 +1,11 @@
 <div>
-    <button (click)="connect()">Connect</button>
-    <button (click)="disconnect()">Disconnect</button>
+    <div>
+        <button (click)="connect()">Connect</button>
+        <button (click)="disconnect()">Disconnect</button>
+    </div>
+    <div>USDT Balance: {{balance}}</div>
+    <div>
+        <button (click)="mintUSDT()">Mint USDT</button>
+        <button (click)="balanceOfUSDT()">Get USDT balance</button>
+    </div>
 </div>
